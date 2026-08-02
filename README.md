@@ -1,6 +1,6 @@
 # Learn FRC programming via the XRP
 
-This class is to teach students new to FRC how Java WPILib programming works using the [XRP](url) platform.
+This class is to teach students new to FRC how Java WPILib programming works using the [XRP](https://www.sparkfun.com/xrp) platform.
 
 It is not designed to be a comprehensive guide but rather a good introduction to many concepts, assuming that a mentor and other students can help teach during build season.
 
