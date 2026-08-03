@@ -183,7 +183,7 @@ independently. But they all are executed by the event loop.
 
 # The XRP system
 
-![XRP](xrp.jpg)
+![XRP](xrp.jpeg)
 
 The XRP system is a small microcontroller attached to a few motors and sensors
 which allows us to inexpensively experiment with FRC robot programming. The XRP
