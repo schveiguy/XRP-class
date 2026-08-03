@@ -225,3 +225,21 @@ To correct this, turn the power on, then set the XRP unit down. While
 stationary, press and release the RESET button. This will restart the XRP while
 it is motionless. The calibration then can be reasonably accurate and the gyro
 will be useful for programming.
+
+## Creating an XRP project
+
+Follow the [instructions on WPILib](https://docs.wpilib.org/en/stable/docs/xrp-robot/programming-xrp.html)
+to create your first project using the XRP template. We will not repeat all
+those instructions here, the goal is to make a program that tests the full
+connectivity and assembly of your robot.
+
+
+# Summary
+
+At this point, you have a general overview of FRC programming, and you have a
+working XRP robot to start working on to program using WPILib. In the next
+lesson we will learn the structure of the template, and add some new code.
+
+---
+
+[Next: Programming the XRP using WPILib](../lesson2/README.md)
