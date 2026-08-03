@@ -131,9 +131,9 @@ the robot code does 4 things:
 1. Read inputs, sensors, controller buttons and analog stick values, other
    values from the driver station (e.g. which auto command should be run),
    information from the FMS, etc.
-2. Based on the inputs, decide on what to do -- did a button get pushed that
-   starts a command? did a timeout event happen? did a command cancel another
-   command?
+2. Based on the inputs, trigger events. Events decide what to do based on the
+   commands that have been established. Did a button get pushed that starts a
+   command? Did a timeout event happen? Did the robot change to teleop mode?
 3. Execute the current commands.
 4. Execute periodic functions in subsystems.
 
