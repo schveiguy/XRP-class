@@ -126,7 +126,7 @@ robots). For this reason, robot programming is done in a loop called the *event
 loop*.
 
 The event loop runs 50 times a second (50 Hz). Each time through the event loop,
-the robot code does 3 things:
+the robot code does 4 things:
 
 1. Read inputs, sensors, controller buttons and analog stick values, other
    values from the driver station (e.g. which auto command should be run),
@@ -134,8 +134,8 @@ the robot code does 3 things:
 2. Based on the inputs, decide on what to do -- did a button get pushed that
    starts a command? did a timeout event happen? did a command cancel another
    command?
-3. Execute the current commands. Log any data that needs to be logged. Execute
-   periodic functions in subsystems.
+3. Execute the current commands.
+4. Execute periodic functions in subsystems.
 
 ### Subsystem
 
