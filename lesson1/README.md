@@ -26,7 +26,7 @@ class will focus on that code.
 
 ## Microcontroller
 
-At the heart of the robot is the microcontroller. In 2026, this controller was
+At the heart of the robot is the microcontroller. In 2026, this controller is
 the RoboRio 2.0. In 2027 it will be a different controller (system core), but
 the purpose is the same. 
 
@@ -34,7 +34,7 @@ The microcontroller is the "brains" of the system. This is the device that is
 running your Java program, and decides how the motors on the robot will behave
 given the inputs to it.
 
-Inputs consist of sensors such as cameras, encoders, diagnositcs, etc. The most
+Inputs consist of sensors such as cameras, encoders, diagnostics, etc. The most
 important input is the human input, which comes from the *Driver station*.
 
 The microcontroller is connected to the Radio, a WiFi connected access point
@@ -68,7 +68,7 @@ dedicated red button is provided by the venue.
 
 # The Java program
 
-Inside the micocontroller, a Java program is executing. This program is
+Inside the microcontroller, a Java program is executing. This program is
 executing from the time the microcontroller boots, to the time it is shut down.
 Even when the robot is not enabled or moving, the program is still executing.
 
@@ -216,7 +216,7 @@ a programming system that is not FRC-related.
 
 ## IMU calibration
 
-the IMU is calibrated on startup. This calibration is extremely sensitive to
+The IMU is calibrated on startup. This calibration is extremely sensitive to
 movement. Most frequently you are turning on power to the XRP while holding it,
 and then setting it down. This will result in the IMU behaving erratically, and
 being basically unusable.

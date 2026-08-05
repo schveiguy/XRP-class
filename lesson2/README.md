@@ -26,7 +26,7 @@ knows how to run the individual motors to make that happen.
 ### XRP Drivetrain Subsystem
 
 If you look at the `Drivetrain` class in the XRP example code, you can see that
-it contains two ` XRPMotor` objects representing the two wheel motors, and two
+it contains two `XRPMotor` objects representing the two wheel motors, and two
 `Encoder` objects representing the wheel encoders.
 
 There is a helper object in here as well, a `DifferentialDrive` object. This is
@@ -41,12 +41,12 @@ contain very few bugs if any.
 Finally, the drive subsystem contains an `XRPGyro` object representing the IMU
 unit. Although the gyro is not used to actually run the driving of the wheels,
 it makes sense to hold it here, as the gyro can be used to determine
-orientiation of the robot - a key part of driving. We will see the importance of
+orientation of the robot - a key part of driving. We will see the importance of
 this later.
 
 The constructor for the `Drivetrain` subsystem configures the motors, the
 DifferentialDrive, and the IMU. All of the methods pertain to driving,
-configuring, setting, and reading, the hardware components of the drive system.
+configuring, setting, and reading the hardware components of the drive system.
 
 ### Arm subsystem
 
@@ -100,7 +100,7 @@ this way, but the default program does do this, so we'll leave it for now. The
 hardware object provides inputs and outputs for the various IO ports on the XRP
 (such as the user button and the green LED).
 
-The controler is initialized using the `Joystick` object. This is a generic object
+The controller is initialized using the `Joystick` object. This is a generic object
 which could be any controller with a joystick and some buttons. WPILib knows how
 to talk to a lot of different types of controllers, so this handles the input no
 matter what type of controller you connect. If you want access to more specific
@@ -135,7 +135,7 @@ There are 3 phases to the command:
 
 1. Inactive - When no event has triggered a command, it is created but not
    executing.
-2. Initializing - When a command gets triggered, it initializes. and gets ready
+2. Initializing - When a command gets triggered, it initializes, and gets ready
    to execute
 3. Executing - While a command is active, the command can perform tasks every
    event loop. It might complete its task and mark itself inactive. It might
@@ -152,7 +152,7 @@ public class DriveDistance extends Command {
   private final double m_speed;
 
   /**
-   * Creates a new DriveDistance. This command will drive your your robot for a desired distance at
+   * Creates a new DriveDistance. This command will drive your robot for a desired distance at
    * a desired speed.
    *
    * @param speed The speed at which the robot will drive
@@ -208,7 +208,7 @@ and hard to repeat behavior, or you may end up damaging the robot.
 
 The initialize function of a command is executed right as the command is
 triggered or scheduled. It sets the stage for the execution of the command. In
-the case of `DriveForward`, we stop any current driving in progress, and clear
+the case of `DriveDistance`, we stop any current driving in progress, and clear
 the encoders so we can measure the distance to drive:
 
 ```java
@@ -226,11 +226,11 @@ The `execute` function is called once per event loop. It should do the work of
 the command. In some cases, the command might not even need an `execute`
 function.
 
-In the `DriveForward` command, `execute` sets the motor speed based on the
-stored parameters. `arcadeDrive` is a function in the`Drivetrain` subsystem
-which accepts a speed to drive at (forward or backward and a speed to turn left
-or right from the robot's perspective -- note the turning velocity is set to 0
-because we don't want any turning):
+In the `DriveDistance` command, `execute` sets the motor speed based on the
+stored parameters. `arcadeDrive` is a function in the `Drivetrain` subsystem
+which accepts a speed to drive at (forward or backward) and a speed to turn
+(left or right, from the robot's perspective) -- note the turning velocity is
+set to 0 because we don't want any turning:
 
 ```java
   // Called every time the scheduler runs while the command is scheduled.
@@ -249,7 +249,7 @@ command is ended and becomes inactive.
 Some commands always return true or false from `isFinished` depending on the
 purpose.
 
-For `DriveForward`, we want to keep driving until we reach the desired distance.
+For `DriveDistance`, we want to keep driving until we reach the desired distance.
 A note on the function calls here, `Math.abs` is a standard Java function that
 returns the absolute value of the parameter. Since the distance is based on two
 wheel encoders which might turn at different speeds, their distance measures are
@@ -267,13 +267,13 @@ averaged together.
 ### end(boolean interrupted)
 
 The `end` function is called when a command has ended. If the command is ended
-because `isFinished` return true, then the `interrupted` parameter is set to
+because `isFinished` returns true, then the `interrupted` parameter is set to
 false. If it's called because the command was cancelled, then `interrupted` is
 true.
 
 This function provides a chance to return things to a normal inactive state.
 
-For `DriveForward`, this means turning off the motors. It is important to
+For `DriveDistance`, this means turning off the motors. It is important to
 remember that a motor is going to keep running the same speed it was last set
 to. So you have to always remember to tell the motors to stop.
 
@@ -343,12 +343,12 @@ the button is pushed), and then sets it to 0 degrees on false (when the button
 is released).
 
 An `InstantCommand` is a standard command which only runs one part of the
-command -- `initialize`. The `execute`, `isFinished`, and `end` functions ar
-eall empty.
+command -- `initialize`. The `execute`, `isFinished`, and `end` functions are
+all empty.
 
 The parameter to `InstantCommand` is the function to run on initialize. In this
 case, we have written a [*lambda
-function*](https://en.wikipedia.org/wiki/Anonymous_function) This is a function
+function*](https://en.wikipedia.org/wiki/Anonymous_function). This is a function
 which is used right where it is defined, and never is assigned a name.
 
 Note the final parameter which is the subsystem required by the command.
