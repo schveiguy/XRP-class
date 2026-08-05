@@ -11,14 +11,15 @@ What is a subsystem? it is a logical collection of hardware devices that work
 together to implement a part of your robot. In FRC, a component of hardware is
 represented by a class. Generally from a vendor such as CTRE or Rev.
 
-These objects represent a physical piece of hardware, such as a motor, or a
-sensor. The methods of these objects allow you to set outputs on these devices
-or read inputs from those devices.
+These objects interact with a physical piece of hardware, such as a motor, or a
+sensor. The methods of these objects allow you to set outputs or read inputs on
+these devices.
 
 A subsystem's job should be to operate the hardware components in a way that
 effectively operates the robot as a whole. For example, a drive subsystem might
 contain 4 motors, and it should run these motors in a way to properly steer and
-move the robot. When you build a Drive subsystem, you don't tell it which motors
+move the robot. It should never run the motors in such a way that they oppose
+each other. When you build a Drive subsystem, you don't tell it which motors
 to run at what speeds, you tell it to drive or turn at a specified speed, and it
 knows how to run the individual motors to make that happen.
 
@@ -141,47 +142,103 @@ There are 3 phases to the command:
    also get cancelled by another command (we will see how this works). At that
    point, the command becomes inactive.
 
+Let's examine a sample command from the standard XRP project called
+`DriveDistance`. This command drives the robot forward a specified distance.
+
+```java
+public class DriveDistance extends Command {
+  private final Drivetrain m_drive;
+  private final double m_distance;
+  private final double m_speed;
+
+  /**
+   * Creates a new DriveDistance. This command will drive your your robot for a desired distance at
+   * a desired speed.
+   *
+   * @param speed The speed at which the robot will drive
+   * @param inches The number of inches the robot will drive
+   * @param drive The drivetrain subsystem on which this command will run
+   */
+  public DriveDistance(double speed, double inches, Drivetrain drive) {
+    m_distance = inches;
+    m_speed = speed;
+    m_drive = drive;
+    addRequirements(drive);
+  }
+
+  // Implementation goes here
+  ...
+}
+```
+
+Let's look at the pieces one at a time.
+
 ### Command construction and requirements
 
-A command's constructor should accept parameters that it needs to execute. For
-example, a `SpinShooter` command might accept a parameter that tells it a target
-spin rate.
+A command's constructor should accept parameters that it needs in order to
+execute. Our `DriveDistance` command has 3 parameters:
+* speed - how fast the robot should drive
+* inches - how many inches the robot should drive before it stops
+* drive - the drivetrain subsystem we use to implement these behaviors.
+
+Note that the constructor saves all the things the command will need when
+executing. It needs the configuration parameters, and it needs to call functions
+on the drive, so all three are saved.
 
 A command contains *requirements* which are a list of subsystems that the
 command needs to operate. The rule in FRC programming is that only one command
-should be using a subsystem at a time. This rule is enforced by specifying in a
-command which subsystems it will require during execution.
+should be using a subsystem at a time. This rule is enforced by specifying in
+the command's constructor which subsystems are required using `addRequirements`.
 
 If another command is triggered which uses a subsystem that an already-executing
 command is using, then the new command is scheduled and the old command is
 cancelled. Why do it this way? Because typically a new command is triggered
-based on newer information (for example, imagine the user instructs the robot to
-shoot, only to realize there is no game piece contained in the robot, the second
-command to stow the shooter should take precedence).
+based on newer information. For example, let's say the command to drive forward
+is executing, but before reaching its destination, the user decides to veer off
+somewhere else. Turning the robot but finishing the drive makes little sense --
+you have already diverted what the robot is doing, and so the new command takes
+priority.
 
 Specifying required subsystems is optional, but very important to get right.
 Command programming can be difficult to design, and you don't want two
 conflicting commands telling the robot what to do. You may end up with strange
 and hard to repeat behavior, or you may end up damaging the robot.
 
-Requirements are added on construction of a command.
-
 ### initialize()
 
 The initialize function of a command is executed right as the command is
-triggered. It sets the stage for the execution of the command. Perhaps you want
-to spin the shooter up to a certain speed, it might turn on the motor at full
-acceleration, to get the motor spinning.
+triggered or scheduled. It sets the stage for the execution of the command. In
+the case of `DriveForward`, we stop any current drive commands, and clear the
+encoders so we can measure the distance to drive:
 
-If there is any state that is needed during the life of the command, this is
-where it should be initialized.
+```java
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    m_drive.arcadeDrive(0, 0);
+    m_drive.resetEncoders();
+  }
+```
 
 ### execute()
 
 The `execute` function is called once per event loop. It should do the work of
 the command. In some cases, the command might not even need an `execute`
-function. In the case of a `SpinShooter` command, we don't need to change the
-motor acceleration, as it's already set to full.
+function.
+
+In the `DriveForward` command, `execute` sets the motor speed based on the
+stored parameters. `arcadeDrive` is a function in the`Drivetrain` subsystem
+which accepts a speed to drive at (forward or backward and a speed to turn left
+or right from the robot's perspective -- note the turning velocity is set to 0
+because we don't want any turning):
+
+```java
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    m_drive.arcadeDrive(m_speed, 0);
+  }
+```
 
 ### isFinished()
 
@@ -192,6 +249,21 @@ command is ended and becomes inactive.
 Some commands always return true or false from `isFinished` depending on the
 purpose.
 
+For `DriveForward`, we want to keep driving until we reach the desired distance.
+A note on the function calls here, `Math.abs` is a standard Java function that
+returns the absolute value of the parameter. Since the distance is based on two
+wheel encoders which might turn at different speeds, their distance measures are
+averaged together.
+
+```java
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    // Compare distance travelled from start to desired distance
+    return Math.abs(m_drive.getAverageDistanceInch()) >= m_distance;
+  }
+```
+
 ### end(boolean interrupted)
 
 The `end` function is called when a command has ended. If the command is ended
@@ -200,6 +272,18 @@ false. If it's called because the command was cancelled, then `interrupted` is
 true.
 
 This function provides a chance to return things to a normal inactive state.
+
+For `DriveForward`, this means turning off the motors. It is important to
+remember that a motor is going to keep running the same speed it was last set
+to. So you have to always remember to tell the motors to stop.
+
+```java
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    m_drive.arcadeDrive(0, 0);
+  }
+```
 
 ### Command pseudocode
 
@@ -239,3 +323,39 @@ when it is false, then you can specify a command for both `onTrue` and
 Every time you bind a trigger to a command, it returns the trigger so you can
 add more bindings without repeating the code.
 
+Let's look at an example from the XRP code which moves the arm when the second
+button is pressed:
+
+```java
+    JoystickButton joystickBButton = new JoystickButton(m_controller, 2);
+    joystickBButton
+        .onTrue(new InstantCommand(() -> m_arm.setAngle(90.0), m_arm))
+        .onFalse(new InstantCommand(() -> m_arm.setAngle(0.0), m_arm));
+
+```
+
+The first line of code creates a button for the "B" button. Note that you likely
+will have a controller that reflects your actual controller, so the code will
+likely look cleaner than this.
+
+The second line tells the code to set the arm angle to 90 degrees on true (when
+the button is pushed), and then sets it to 0 degrees on false (when the button
+is released).
+
+An `InstantCommand` is a standard command which only runs one part of the
+command -- `initialize`. The `execute`, `isFinished`, and `end` functions ar
+eall empty.
+
+The parameter to `InstantCommand` is the function to run on initialize. In this
+case, we have written a [*lambda
+function*](https://en.wikipedia.org/wiki/Anonymous_function) This is a function
+which is used right where it is defined, and never is assigned a name.
+
+Note the final parameter which is the subsystem required by the command.
+
+In this case, we created two commands, and assigned them to two different button
+events.
+
+---
+
+[Previous: FRC Programming Overview](../lesson1/README.md)
