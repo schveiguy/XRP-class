@@ -195,9 +195,9 @@ command is using, then the new command is scheduled and the old command is
 cancelled. Why do it this way? Because typically a new command is triggered
 based on newer information. For example, let's say the command to drive forward
 is executing, but before reaching its destination, the user decides to veer off
-somewhere else. Turning the robot but finishing the drive makes little sense --
+somewhere else. Turning the robot but continuing to drive forward makes little sense --
 you have already diverted what the robot is doing, and so the new command takes
-priority.
+priority. Plus the user will feel like the robot isn't obeying the controls.
 
 Specifying required subsystems is optional, but very important to get right.
 Command programming can be difficult to design, and you don't want two
@@ -208,8 +208,8 @@ and hard to repeat behavior, or you may end up damaging the robot.
 
 The initialize function of a command is executed right as the command is
 triggered or scheduled. It sets the stage for the execution of the command. In
-the case of `DriveForward`, we stop any current drive commands, and clear the
-encoders so we can measure the distance to drive:
+the case of `DriveForward`, we stop any current driving in progress, and clear
+the encoders so we can measure the distance to drive:
 
 ```java
   // Called when the command is initially scheduled.
@@ -335,8 +335,8 @@ button is pressed:
 ```
 
 The first line of code creates a button for the "B" button. Note that you likely
-will have a controller that reflects your actual controller, so the code will
-likely look cleaner than this.
+will have a controller object that reflects your actual controller, so the code
+will likely look cleaner than this.
 
 The second line tells the code to set the arm angle to 90 degrees on true (when
 the button is pushed), and then sets it to 0 degrees on false (when the button
