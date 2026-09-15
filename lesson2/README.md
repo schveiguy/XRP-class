@@ -358,4 +358,4 @@ events.
 
 ---
 
-[Previous: FRC Programming Overview](../lesson1/README.md)
+[Previous: FRC Programming Overview](../lesson1/README.md) | [Next: Adding a Subsystem and Command](../lesson3/README.md)
